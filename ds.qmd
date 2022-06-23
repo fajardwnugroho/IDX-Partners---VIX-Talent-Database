@@ -1,0 +1,52 @@
+---
+title: "ID/X Partners-Data Scientist"
+toc: false
+---
+
+## Dashboard for Company & Talent
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(reactable)
+library(googlesheets4)
+library(googleAuthR)
+library(tidyverse)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+df_ds_idx <- read_sheet("https://docs.google.com/spreadsheets/d/1g-Qm8GXq75ey1MsfRMadP-3bvXgCoVJSHMW2MacGSuY", range = "ID/X Partners-Data Scientist")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+df_ds_idx <- df_ds_idx |> 
+  mutate(`Total Time (hour)` = round(`Total Time (hour)`, digits = 2))
+
+df_ds_idx <- df_ds_idx |> 
+  filter(State %in% c("in_progress", "completed"))
+
+df_ds_idx <- df_ds_idx |> 
+  filter(`Batch VIX` %in% c("May", "June"))
+
+df_ds_idx_clean <- df_ds_idx[ , c("Name", "Email", "Phone Number", "Batch VIX", "State", "Advance Task Submission File 1", "Total Score", "Total Time (hour)")]
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+sticky_style <- list(backgroundColor = "#f7f7f7")
+
+
+reactable(df_ds_idx_clean, wrap = FALSE,
+  resizable = TRUE,
+  bordered = TRUE,
+  defaultSorted = list(`State` = "asc",
+                       `Total Score` = "desc", 
+                       `Total Time (hour)` = "asc"),
+  filterable = TRUE, 
+  fullWidth = TRUE,
+  defaultPageSize = 50,
+  minRows = 10,
+          columns = list(`Advance Task Submission File 1` = colDef(html = TRUE, cell = function(value, index) {
+      sprintf('<a href="%s" target="_blank">%s</a>', df_ds_idx_clean$`Advance Task Submission File 1`[index], value)
+    })
+  ))
+```
